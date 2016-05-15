@@ -1,0 +1,87 @@
+1) C code file
+
+ /* File : example.c */
+ 
+ #include <time.h>
+ double My_variable = 3.0;
+ 
+ int fact(int n) {
+     if (n <= 1) return 1;
+     else return n*fact(n-1);
+ }
+ 
+ int my_mod(int x, int y) {
+     return (x%y);
+ }
+ 	
+ char *get_time()
+ {
+     time_t ltime;
+     time(&ltime);
+     return ctime(&ltime);
+ }
+ 
+
+2) Interface file
+
+Now, in order to add these files to your favorite language, you need to write an "interface file" which is the input to SWIG. An interface file for these C functions might look like this :
+
+/* example.i */
+ %module example
+ %{
+ /* Put header files here or function declarations like below */
+ extern double My_variable;
+ extern int fact(int n);
+ extern int my_mod(int x, int y);
+ extern char *get_time();
+ %}
+ 
+ extern double My_variable;
+ extern int fact(int n);
+ extern int my_mod(int x, int y);
+ extern char *get_time();
+
+3) Turning C code into a Python module
+
+swig -python example.i
+
+
+4) Dynamic link library by Distutils, _example.pyd
+
+(a) edit setup.py
+
+"""
+setup.py
+"""
+from distutils.core import setup, Extension
+example_module = Extension('_example',
+            sources=['example_wrap.c', 'example.c'],
+            )
+setup (name = 'example',
+  version = '0.1',
+  author      = "SWIG Docs",
+  description = """Simple swig example from docs""",
+  ext_modules = [example_module],
+  py_modules = ["example"],
+  )
+
+(b) run 
+python setup.py build_ext --inplace
+
+5) execute in Python
+(a) edit call.py
+"""
+call.py
+"""
+
+import _example
+print _example.fact(5)
+print _example.my_mod(7,3)
+print _example.get_time()
+
+
+
+(b) run 
+
+python call.py
+
